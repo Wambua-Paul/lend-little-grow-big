@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,22 +11,95 @@ import { useToast } from "@/hooks/use-toast";
 
 export const LoanApplication = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [formData, setFormData] = useState({
+    businessName: "",
+    businessType: "",
+    businessAddress: "",
+    businessRegistration: "",
+    yearsInBusiness: "",
+    monthlyRevenue: "",
+    loanAmount: "",
+    loanPurpose: "",
+    requestedTerm: "",
+  });
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to submit a loan application.",
+        variant: "destructive",
+      });
+      navigate("/auth");
+      return;
+    }
+
     setIsSubmitting(true);
-    
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    toast({
-      title: "Application Submitted!",
-      description: "We'll review your application and contact you within 24-48 hours.",
-    });
-    
-    setIsSubmitting(false);
-    (e.target as HTMLFormElement).reset();
+
+    try {
+      const { error } = await supabase.from("loan_applications").insert({
+        user_id: user.id,
+        business_name: formData.businessName,
+        business_type: formData.businessType,
+        business_address: formData.businessAddress,
+        business_registration: formData.businessRegistration || null,
+        years_in_business: parseFloat(formData.yearsInBusiness),
+        monthly_revenue: parseFloat(formData.monthlyRevenue),
+        loan_amount: parseFloat(formData.loanAmount),
+        loan_purpose: formData.loanPurpose,
+        requested_term: parseInt(formData.requestedTerm),
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Application Submitted!",
+        description: "We'll review your application and contact you within 24-48 hours.",
+      });
+
+      setFormData({
+        businessName: "",
+        businessType: "",
+        businessAddress: "",
+        businessRegistration: "",
+        yearsInBusiness: "",
+        monthlyRevenue: "",
+        loanAmount: "",
+        loanPurpose: "",
+        requestedTerm: "",
+      });
+
+      (e.target as HTMLFormElement).reset();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -48,123 +123,140 @@ export const LoanApplication = () => {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name *</Label>
-                  <Input id="firstName" required placeholder="John" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name *</Label>
-                  <Input id="lastName" required placeholder="Doe" />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="email">Email *</Label>
-                <Input id="email" type="email" required placeholder="john@business.com" />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number *</Label>
-                <Input id="phone" type="tel" required placeholder="+1 (555) 000-0000" />
-              </div>
-
               <div className="space-y-2">
                 <Label htmlFor="businessName">Business Name *</Label>
-                <Input id="businessName" required placeholder="ABC Company Inc." />
+                <Input
+                  id="businessName"
+                  required
+                  placeholder="ABC Company Inc."
+                  value={formData.businessName}
+                  onChange={(e) => handleInputChange("businessName", e.target.value)}
+                />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="businessType">Business Type *</Label>
-                  <Select required>
+                  <Select
+                    required
+                    value={formData.businessType}
+                    onValueChange={(value) => handleInputChange("businessType", value)}
+                  >
                     <SelectTrigger id="businessType">
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="sole">Sole Proprietorship</SelectItem>
-                      <SelectItem value="llc">LLC</SelectItem>
-                      <SelectItem value="corp">Corporation</SelectItem>
-                      <SelectItem value="partnership">Partnership</SelectItem>
+                      <SelectItem value="Sole Proprietorship">Sole Proprietorship</SelectItem>
+                      <SelectItem value="LLC">LLC</SelectItem>
+                      <SelectItem value="Corporation">Corporation</SelectItem>
+                      <SelectItem value="Partnership">Partnership</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="yearsInBusiness">Years in Business *</Label>
-                  <Select required>
+                  <Select
+                    required
+                    value={formData.yearsInBusiness}
+                    onValueChange={(value) => handleInputChange("yearsInBusiness", value)}
+                  >
                     <SelectTrigger id="yearsInBusiness">
                       <SelectValue placeholder="Select years" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="0-1">Less than 1 year</SelectItem>
-                      <SelectItem value="1-2">1-2 years</SelectItem>
-                      <SelectItem value="2-5">2-5 years</SelectItem>
-                      <SelectItem value="5+">5+ years</SelectItem>
+                      <SelectItem value="0.5">Less than 1 year</SelectItem>
+                      <SelectItem value="1.5">1-2 years</SelectItem>
+                      <SelectItem value="3.5">2-5 years</SelectItem>
+                      <SelectItem value="7">5+ years</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="businessAddress">Business Address *</Label>
+                <Input
+                  id="businessAddress"
+                  required
+                  placeholder="123 Main St, City, State"
+                  value={formData.businessAddress}
+                  onChange={(e) => handleInputChange("businessAddress", e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="registrationNumber">Business Registration Number</Label>
+                <Input
+                  id="registrationNumber"
+                  placeholder="Optional"
+                  value={formData.businessRegistration}
+                  onChange={(e) => handleInputChange("businessRegistration", e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="monthlyRevenue">Monthly Revenue *</Label>
+                <Input
+                  id="monthlyRevenue"
+                  type="number"
+                  required
+                  placeholder="50000"
+                  min="0"
+                  value={formData.monthlyRevenue}
+                  onChange={(e) => handleInputChange("monthlyRevenue", e.target.value)}
+                />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="loanAmount">Requested Loan Amount *</Label>
-                  <Select required>
-                    <SelectTrigger id="loanAmount">
-                      <SelectValue placeholder="Select amount" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1000-5000">$1,000 - $5,000</SelectItem>
-                      <SelectItem value="5000-10000">$5,000 - $10,000</SelectItem>
-                      <SelectItem value="10000-25000">$10,000 - $25,000</SelectItem>
-                      <SelectItem value="25000-50000">$25,000 - $50,000</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Input
+                    id="loanAmount"
+                    type="number"
+                    required
+                    placeholder="25000"
+                    min="1000"
+                    max="500000"
+                    value={formData.loanAmount}
+                    onChange={(e) => handleInputChange("loanAmount", e.target.value)}
+                  />
                 </div>
-
                 <div className="space-y-2">
-                  <Label htmlFor="loanPurpose">Loan Purpose *</Label>
-                  <Select required>
-                    <SelectTrigger id="loanPurpose">
-                      <SelectValue placeholder="Select purpose" />
+                  <Label htmlFor="loanTerm">Loan Term *</Label>
+                  <Select
+                    required
+                    value={formData.requestedTerm}
+                    onValueChange={(value) => handleInputChange("requestedTerm", value)}
+                  >
+                    <SelectTrigger id="loanTerm">
+                      <SelectValue placeholder="Select term" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="inventory">Inventory</SelectItem>
-                      <SelectItem value="equipment">Equipment</SelectItem>
-                      <SelectItem value="marketing">Marketing</SelectItem>
-                      <SelectItem value="expansion">Business Expansion</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
+                      <SelectItem value="6">6 months</SelectItem>
+                      <SelectItem value="12">12 months</SelectItem>
+                      <SelectItem value="24">24 months</SelectItem>
+                      <SelectItem value="36">36 months</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="revenue">Annual Revenue *</Label>
-                <Input id="revenue" required placeholder="$100,000" />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="details">Additional Details</Label>
+                <Label htmlFor="loanPurpose">Loan Purpose *</Label>
                 <Textarea
-                  id="details"
-                  placeholder="Tell us more about your business and how you plan to use the loan..."
-                  rows={4}
+                  id="loanPurpose"
+                  required
+                  placeholder="Describe how you plan to use the loan funds..."
+                  className="min-h-[100px]"
+                  value={formData.loanPurpose}
+                  onChange={(e) => handleInputChange("loanPurpose", e.target.value)}
                 />
               </div>
 
-              <Button 
-                type="submit" 
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-                disabled={isSubmitting}
-              >
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
                 {isSubmitting ? "Submitting..." : "Submit Application"}
               </Button>
-
-              <p className="text-xs text-muted-foreground text-center">
-                By submitting this form, you agree to our terms of service and privacy policy.
-                Your information is secure and confidential.
-              </p>
             </form>
           </CardContent>
         </Card>

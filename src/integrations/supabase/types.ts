@@ -14,7 +14,98 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      loan_applications: {
+        Row: {
+          admin_notes: string | null
+          business_address: string
+          business_name: string
+          business_registration: string | null
+          business_type: string
+          created_at: string
+          id: string
+          loan_amount: number
+          loan_purpose: string
+          monthly_revenue: number
+          requested_term: number
+          status: Database["public"]["Enums"]["loan_status"]
+          status_updated_at: string
+          updated_at: string
+          user_id: string
+          years_in_business: number
+        }
+        Insert: {
+          admin_notes?: string | null
+          business_address: string
+          business_name: string
+          business_registration?: string | null
+          business_type: string
+          created_at?: string
+          id?: string
+          loan_amount: number
+          loan_purpose: string
+          monthly_revenue: number
+          requested_term: number
+          status?: Database["public"]["Enums"]["loan_status"]
+          status_updated_at?: string
+          updated_at?: string
+          user_id: string
+          years_in_business: number
+        }
+        Update: {
+          admin_notes?: string | null
+          business_address?: string
+          business_name?: string
+          business_registration?: string | null
+          business_type?: string
+          created_at?: string
+          id?: string
+          loan_amount?: number
+          loan_purpose?: string
+          monthly_revenue?: number
+          requested_term?: number
+          status?: Database["public"]["Enums"]["loan_status"]
+          status_updated_at?: string
+          updated_at?: string
+          user_id?: string
+          years_in_business?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loan_applications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string | null
+          id: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +114,13 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      loan_status:
+        | "pending"
+        | "under_review"
+        | "approved"
+        | "rejected"
+        | "disbursed"
+        | "completed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +247,15 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      loan_status: [
+        "pending",
+        "under_review",
+        "approved",
+        "rejected",
+        "disbursed",
+        "completed",
+      ],
+    },
   },
 } as const

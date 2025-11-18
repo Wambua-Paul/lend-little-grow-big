@@ -1,7 +1,25 @@
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Building2 } from "lucide-react";
 
 export const Navigation = () => {
+  const [user, setUser] = useState<any>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     element?.scrollIntoView({ behavior: "smooth" });
@@ -36,12 +54,26 @@ export const Navigation = () => {
           </button>
         </div>
 
-        <Button 
-          onClick={() => scrollToSection("apply")}
-          className="bg-primary hover:bg-primary/90 text-primary-foreground"
-        >
-          Get Started
-        </Button>
+        <div className="flex items-center gap-4">
+          {user ? (
+            <>
+              <Button
+                variant="outline"
+                onClick={() => navigate("/dashboard")}
+                className="hidden md:inline-flex"
+              >
+                Dashboard
+              </Button>
+              <Button onClick={() => supabase.auth.signOut()}>
+                Sign Out
+              </Button>
+            </>
+          ) : (
+            <Button onClick={() => navigate("/auth")}>
+              Sign In
+            </Button>
+          )}
+        </div>
       </div>
     </nav>
   );
