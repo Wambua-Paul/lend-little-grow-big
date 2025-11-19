@@ -196,7 +196,7 @@ export const LoanApplication = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="monthlyRevenue">Monthly Revenue *</Label>
+                <Label htmlFor="monthlyRevenue">Monthly Revenue (KES) *</Label>
                 <Input
                   id="monthlyRevenue"
                   type="number"
@@ -210,7 +210,7 @@ export const LoanApplication = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="loanAmount">Requested Loan Amount *</Label>
+                  <Label htmlFor="loanAmount">Requested Loan Amount (KES) *</Label>
                   <Input
                     id="loanAmount"
                     type="number"

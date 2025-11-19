@@ -184,7 +184,7 @@ export default function Dashboard() {
                     <div>
                       <p className="text-sm text-muted-foreground">Loan Amount</p>
                       <p className="text-lg font-semibold">
-                        ${app.loan_amount.toLocaleString()}
+                        KES {app.loan_amount.toLocaleString()}
                       </p>
                     </div>
                     <div>

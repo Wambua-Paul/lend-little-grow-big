@@ -39,7 +39,7 @@ export const LoanCalculator = () => {
             <div className="space-y-4">
               <div className="flex justify-between">
                 <Label>Loan Amount</Label>
-                <span className="font-semibold text-primary">${amount.toLocaleString()}</span>
+                <span className="font-semibold text-primary">KES {amount.toLocaleString()}</span>
               </div>
               <Slider
                 value={[amount]}
@@ -50,8 +50,8 @@ export const LoanCalculator = () => {
                 className="w-full"
               />
               <div className="flex justify-between text-xs text-muted-foreground">
-                <span>$1,000</span>
-                <span>$50,000</span>
+                <span>KES 1,000</span>
+                <span>KES 50,000</span>
               </div>
             </div>
 
@@ -78,15 +78,15 @@ export const LoanCalculator = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="p-4 rounded-lg bg-primary/5 text-center">
                   <p className="text-sm text-muted-foreground mb-1">Monthly Payment</p>
-                  <p className="text-2xl font-bold text-primary">${calculateMonthlyPayment()}</p>
+                  <p className="text-2xl font-bold text-primary">KES {calculateMonthlyPayment()}</p>
                 </div>
                 <div className="p-4 rounded-lg bg-secondary/5 text-center">
                   <p className="text-sm text-muted-foreground mb-1">Total Payment</p>
-                  <p className="text-2xl font-bold text-secondary">${totalPayment}</p>
+                  <p className="text-2xl font-bold text-secondary">KES {totalPayment}</p>
                 </div>
                 <div className="p-4 rounded-lg bg-muted text-center">
                   <p className="text-sm text-muted-foreground mb-1">Total Interest</p>
-                  <p className="text-2xl font-bold text-foreground">${totalInterest}</p>
+                  <p className="text-2xl font-bold text-foreground">KES {totalInterest}</p>
                 </div>
               </div>
               <p className="text-xs text-muted-foreground text-center mt-4">
