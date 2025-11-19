@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
+import { getLoanTier } from "@/lib/loanTiers";
 
 export const LoanApplication = () => {
   const { toast } = useToast();
@@ -37,6 +39,8 @@ export const LoanApplication = () => {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const currentTier = formData.loanAmount ? getLoanTier(parseFloat(formData.loanAmount)) : null;
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -116,10 +120,34 @@ export const LoanApplication = () => {
 
         <Card className="shadow-lg">
           <CardHeader>
-            <CardTitle>Business Loan Application</CardTitle>
-            <CardDescription>
-              Please provide accurate information to help us process your application quickly
-            </CardDescription>
+            <div className="flex items-start justify-between">
+              <div>
+                <CardTitle>Business Loan Application</CardTitle>
+                <CardDescription>
+                  Please provide accurate information to help us process your application quickly
+                </CardDescription>
+              </div>
+              {currentTier && (
+                <Badge variant="secondary" className="text-sm">
+                  {currentTier.name}
+                </Badge>
+              )}
+            </div>
+            {currentTier && (
+              <div className="mt-4 p-3 rounded-lg bg-primary/5">
+                <p className="text-sm text-muted-foreground">{currentTier.description}</p>
+                <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Interest Rate:</span>{" "}
+                    <span className="font-semibold text-primary">{currentTier.interestRate}% APR</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Available Terms:</span>{" "}
+                    <span className="font-semibold">{currentTier.availableTerms.join(", ")} months</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -228,15 +256,17 @@ export const LoanApplication = () => {
                     required
                     value={formData.requestedTerm}
                     onValueChange={(value) => handleInputChange("requestedTerm", value)}
+                    disabled={!currentTier}
                   >
                     <SelectTrigger id="loanTerm">
                       <SelectValue placeholder="Select term" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="6">6 months</SelectItem>
-                      <SelectItem value="12">12 months</SelectItem>
-                      <SelectItem value="24">24 months</SelectItem>
-                      <SelectItem value="36">36 months</SelectItem>
+                      {currentTier?.availableTerms.map((term) => (
+                        <SelectItem key={term} value={term.toString()}>
+                          {term} months
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>

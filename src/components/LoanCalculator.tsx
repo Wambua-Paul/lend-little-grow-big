@@ -2,11 +2,15 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
+import { Badge } from "@/components/ui/badge";
+import { getLoanTier } from "@/lib/loanTiers";
 
 export const LoanCalculator = () => {
   const [amount, setAmount] = useState(10000);
   const [term, setTerm] = useState(12);
-  const [rate] = useState(10.5); // Fixed rate for simplicity
+  
+  const currentTier = getLoanTier(amount);
+  const rate = currentTier.interestRate;
 
   const calculateMonthlyPayment = () => {
     const monthlyRate = rate / 100 / 12;
@@ -32,8 +36,16 @@ export const LoanCalculator = () => {
 
         <Card className="shadow-lg">
           <CardHeader>
-            <CardTitle>Calculate Your Loan</CardTitle>
-            <CardDescription>Adjust the sliders to see your estimated payments</CardDescription>
+            <div className="flex items-start justify-between">
+              <div>
+                <CardTitle>Calculate Your Loan</CardTitle>
+                <CardDescription>Adjust the sliders to see your estimated payments</CardDescription>
+              </div>
+              <Badge variant="secondary" className="text-sm">
+                {currentTier.name}
+              </Badge>
+            </div>
+            <p className="text-sm text-muted-foreground mt-2">{currentTier.description}</p>
           </CardHeader>
           <CardContent className="space-y-8">
             <div className="space-y-4">
@@ -63,15 +75,18 @@ export const LoanCalculator = () => {
               <Slider
                 value={[term]}
                 onValueChange={(value) => setTerm(value[0])}
-                min={6}
-                max={36}
+                min={currentTier.availableTerms[0]}
+                max={currentTier.availableTerms[currentTier.availableTerms.length - 1]}
                 step={6}
                 className="w-full"
               />
               <div className="flex justify-between text-xs text-muted-foreground">
-                <span>6 months</span>
-                <span>36 months</span>
+                <span>{currentTier.availableTerms[0]} months</span>
+                <span>{currentTier.availableTerms[currentTier.availableTerms.length - 1]} months</span>
               </div>
+              <p className="text-xs text-muted-foreground">
+                Available terms for {currentTier.name}: {currentTier.availableTerms.join(", ")} months
+              </p>
             </div>
 
             <div className="pt-6 border-t">
