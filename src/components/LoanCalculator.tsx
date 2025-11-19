@@ -45,13 +45,13 @@ export const LoanCalculator = () => {
                 value={[amount]}
                 onValueChange={(value) => setAmount(value[0])}
                 min={1000}
-                max={50000}
-                step={1000}
+                max={1000000}
+                step={10000}
                 className="w-full"
               />
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span>KES 1,000</span>
-                <span>KES 50,000</span>
+                <span>KES 1,000,000</span>
               </div>
             </div>
 
