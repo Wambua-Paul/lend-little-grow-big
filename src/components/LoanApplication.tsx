@@ -217,7 +217,7 @@ export const LoanApplication = () => {
                     required
                     placeholder="25000"
                     min="1000"
-                    max="500000"
+                    max="1000000"
                     value={formData.loanAmount}
                     onChange={(e) => handleInputChange("loanAmount", e.target.value)}
                   />
