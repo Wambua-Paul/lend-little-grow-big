@@ -47,6 +47,41 @@ export default function Dashboard() {
     }
   }, [user]);
 
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('loan_applications_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'loan_applications'
+        },
+        (payload) => {
+          if (payload.eventType === 'INSERT') {
+            setApplications((prev) => [payload.new as LoanApplication, ...prev]);
+          } else if (payload.eventType === 'UPDATE') {
+            setApplications((prev) =>
+              prev.map((app) =>
+                app.id === payload.new.id ? (payload.new as LoanApplication) : app
+              )
+            );
+          } else if (payload.eventType === 'DELETE') {
+            setApplications((prev) =>
+              prev.filter((app) => app.id !== payload.old.id)
+            );
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
   const fetchApplications = async () => {
     try {
       const { data, error } = await supabase
