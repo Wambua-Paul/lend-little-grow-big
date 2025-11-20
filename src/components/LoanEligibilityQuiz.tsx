@@ -9,8 +9,10 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { LOAN_TIERS, LoanTier } from "@/lib/loanTiers";
 import { CheckCircle2, ArrowRight, ArrowLeft } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const quizSchema = z.object({
   businessType: z.string().min(1, "Please select a business type"),
@@ -121,6 +123,48 @@ export const LoanEligibilityQuiz = () => {
 
         <Card>
           <CardHeader>
+            {step < 4 && (
+              <div className="mb-6">
+                <div className="flex justify-between items-center mb-4">
+                  {[1, 2, 3].map((stepNumber) => (
+                    <div key={stepNumber} className="flex items-center flex-1">
+                      <div className="flex flex-col items-center">
+                        <div
+                          className={cn(
+                            "w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all",
+                            step >= stepNumber
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-muted text-muted-foreground"
+                          )}
+                        >
+                          {step > stepNumber ? (
+                            <CheckCircle2 className="h-5 w-5" />
+                          ) : (
+                            stepNumber
+                          )}
+                        </div>
+                        <span className="text-xs mt-2 text-muted-foreground hidden sm:block">
+                          {stepNumber === 1 && "Business"}
+                          {stepNumber === 2 && "Performance"}
+                          {stepNumber === 3 && "Requirements"}
+                        </span>
+                      </div>
+                      {stepNumber < 3 && (
+                        <div className="flex-1 h-1 mx-2">
+                          <div
+                            className={cn(
+                              "h-full rounded transition-all",
+                              step > stepNumber ? "bg-primary" : "bg-muted"
+                            )}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <Progress value={(step / 3) * 100} className="h-2" />
+              </div>
+            )}
             <CardTitle>
               {step < 4 ? `Step ${step} of 3` : "Your Recommendation"}
             </CardTitle>
