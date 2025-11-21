@@ -106,6 +106,53 @@ export type Database = {
         }
         Relationships: []
       }
+      quiz_results: {
+        Row: {
+          business_type: string
+          created_at: string
+          estimated_amount: string
+          id: string
+          loan_purpose: string
+          monthly_revenue: string
+          recommended_tier: string
+          recommended_tier_data: Json
+          user_id: string
+          years_in_business: string
+        }
+        Insert: {
+          business_type: string
+          created_at?: string
+          estimated_amount: string
+          id?: string
+          loan_purpose: string
+          monthly_revenue: string
+          recommended_tier: string
+          recommended_tier_data: Json
+          user_id: string
+          years_in_business: string
+        }
+        Update: {
+          business_type?: string
+          created_at?: string
+          estimated_amount?: string
+          id?: string
+          loan_purpose?: string
+          monthly_revenue?: string
+          recommended_tier?: string
+          recommended_tier_data?: Json
+          user_id?: string
+          years_in_business?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_results_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

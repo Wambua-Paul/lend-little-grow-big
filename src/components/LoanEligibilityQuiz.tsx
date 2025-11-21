@@ -12,8 +12,11 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { LOAN_TIERS, LoanTier } from "@/lib/loanTiers";
-import { CheckCircle2, ArrowRight, ArrowLeft } from "lucide-react";
+import { CheckCircle2, ArrowRight, ArrowLeft, Save, History } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 const quizSchema = z.object({
   businessType: z.string().min(1, "Please select a business type"),
@@ -28,6 +31,10 @@ type QuizFormData = z.infer<typeof quizSchema>;
 export const LoanEligibilityQuiz = () => {
   const [step, setStep] = useState(1);
   const [recommendation, setRecommendation] = useState<LoanTier | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [savedResults, setSavedResults] = useState<any[]>([]);
+  const { toast } = useToast();
 
   const form = useForm<QuizFormData>({
     resolver: zodResolver(quizSchema),
@@ -39,6 +46,77 @@ export const LoanEligibilityQuiz = () => {
       estimatedAmount: "",
     },
   });
+
+  // Check authentication and load saved results
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUserId(user?.id || null);
+      
+      if (user?.id) {
+        loadSavedResults(user.id);
+      }
+    };
+    checkAuth();
+  }, []);
+
+  const loadSavedResults = async (uid: string) => {
+    const { data, error } = await supabase
+      .from('quiz_results')
+      .select('*')
+      .eq('user_id', uid)
+      .order('created_at', { ascending: false })
+      .limit(5);
+    
+    if (!error && data) {
+      setSavedResults(data);
+    }
+  };
+
+  const saveResults = async () => {
+    if (!userId || !recommendation) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to save your quiz results.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSaving(true);
+    const formData = form.getValues();
+    
+    const { error } = await supabase
+      .from('quiz_results')
+      .insert({
+        user_id: userId,
+        business_type: formData.businessType,
+        years_in_business: formData.yearsInBusiness,
+        monthly_revenue: formData.monthlyRevenue,
+        loan_purpose: formData.loanPurpose,
+        estimated_amount: formData.estimatedAmount,
+        recommended_tier: recommendation.name,
+        recommended_tier_data: recommendation,
+      });
+
+    setIsSaving(false);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save quiz results. Please try again.",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: "Your quiz results have been saved!",
+      });
+      if (userId) {
+        loadSavedResults(userId);
+      }
+    }
+  };
 
   const calculateRecommendation = (data: QuizFormData): LoanTier => {
     const revenue = parseInt(data.monthlyRevenue);
@@ -150,9 +228,70 @@ export const LoanEligibilityQuiz = () => {
     <section className="py-20 px-4 bg-muted/50">
       <div className="container mx-auto max-w-3xl">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Find Your Perfect Loan Tier
-          </h2>
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground">
+              Find Your Perfect Loan Tier
+            </h2>
+            {userId && savedResults.length > 0 && (
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <History className="mr-2 h-4 w-4" />
+                    View History
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>Your Quiz History</DialogTitle>
+                    <DialogDescription>
+                      Review your previous quiz results
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 mt-4">
+                    {savedResults.map((result) => (
+                      <Card key={result.id}>
+                        <CardHeader>
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <CardTitle className="text-lg">{result.recommended_tier}</CardTitle>
+                              <CardDescription>
+                                {new Date(result.created_at).toLocaleDateString('en-US', {
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric',
+                                })}
+                              </CardDescription>
+                            </div>
+                            <Badge>{result.business_type}</Badge>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid grid-cols-2 gap-2 text-sm">
+                            <div>
+                              <span className="text-muted-foreground">Years in Business:</span>
+                              <p className="font-medium">{result.years_in_business}</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Monthly Revenue:</span>
+                              <p className="font-medium">KES {parseInt(result.monthly_revenue).toLocaleString()}</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Loan Purpose:</span>
+                              <p className="font-medium capitalize">{result.loan_purpose.replace('_', ' ')}</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Estimated Amount:</span>
+                              <p className="font-medium">KES {parseInt(result.estimated_amount).toLocaleString()}</p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </DialogContent>
+              </Dialog>
+            )}
+          </div>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Answer a few questions about your business and we'll recommend the best loan tier for your needs
           </p>
@@ -439,6 +578,12 @@ export const LoanEligibilityQuiz = () => {
                     <Button onClick={resetQuiz} variant="outline" className="flex-1">
                       Retake Quiz
                     </Button>
+                    {userId && (
+                      <Button onClick={saveResults} variant="secondary" className="flex-1" disabled={isSaving}>
+                        <Save className="mr-2 h-4 w-4" />
+                        {isSaving ? "Saving..." : "Save Results"}
+                      </Button>
+                    )}
                     <Button className="flex-1" onClick={() => {
                       const applicationSection = document.getElementById('loan-application');
                       applicationSection?.scrollIntoView({ behavior: 'smooth' });
