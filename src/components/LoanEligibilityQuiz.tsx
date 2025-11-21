@@ -180,7 +180,8 @@ export const LoanEligibilityQuiz = () => {
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                   {step === 1 && (
-                    <FormField
+                    <div key="step-1" className="animate-fade-in">
+                      <FormField
                       control={form.control}
                       name="businessType"
                       render={({ field }) => (
@@ -205,10 +206,11 @@ export const LoanEligibilityQuiz = () => {
                         </FormItem>
                       )}
                     />
+                    </div>
                   )}
 
                   {step === 2 && (
-                    <>
+                    <div key="step-2" className="animate-fade-in">
                       <FormField
                         control={form.control}
                         name="yearsInBusiness"
@@ -250,14 +252,14 @@ export const LoanEligibilityQuiz = () => {
                               <Input type="number" placeholder="e.g., 150000" {...field} />
                             </FormControl>
                             <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </>
+                        </FormItem>
+                      )}
+                    />
+                    </div>
                   )}
 
                   {step === 3 && (
-                    <>
+                    <div key="step-3" className="animate-fade-in">
                       <FormField
                         control={form.control}
                         name="loanPurpose"
@@ -310,10 +312,10 @@ export const LoanEligibilityQuiz = () => {
                               </RadioGroup>
                             </FormControl>
                             <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </>
+                        </FormItem>
+                      )}
+                    />
+                    </div>
                   )}
 
                   <div className="flex justify-between pt-4">
@@ -338,8 +340,8 @@ export const LoanEligibilityQuiz = () => {
               </Form>
             ) : (
               recommendation && (
-                <div className="space-y-6">
-                  <div className="text-center">
+                <div key="recommendation" className="space-y-6 animate-fade-in">
+                  <div className="text-center animate-scale-in">
                     <Badge className="mb-4 bg-primary">Recommended for You</Badge>
                     <h3 className="text-2xl font-bold text-foreground mb-2">
                       {recommendation.name}
@@ -349,7 +351,7 @@ export const LoanEligibilityQuiz = () => {
                     </p>
                   </div>
 
-                  <div className="bg-muted rounded-lg p-6 space-y-4">
+                  <div className="bg-muted rounded-lg p-6 space-y-4 animate-fade-in" style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <p className="text-sm text-muted-foreground mb-1">Interest Rate</p>
@@ -396,7 +398,7 @@ export const LoanEligibilityQuiz = () => {
                     </div>
                   </div>
 
-                  <div className="flex gap-3">
+                  <div className="flex gap-3 animate-fade-in" style={{ animationDelay: '0.4s', animationFillMode: 'both' }}>
                     <Button onClick={resetQuiz} variant="outline" className="flex-1">
                       Retake Quiz
                     </Button>
