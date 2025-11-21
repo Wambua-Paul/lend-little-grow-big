@@ -1,4 +1,4 @@
-# Welcome to your Lovable project
+# Welcome to lend-little-grow-big project
 
 ## Project info
 
