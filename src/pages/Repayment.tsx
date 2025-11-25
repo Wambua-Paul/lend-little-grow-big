@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 
 type PaymentDetail = {
   month: number;
@@ -155,6 +156,66 @@ export default function Repayment() {
                     </CardContent>
                   </Card>
                 </div>
+
+                <Card className="mb-8">
+                  <CardHeader>
+                    <CardTitle>Payment Breakdown Over Time</CardTitle>
+                    <CardDescription>Visual representation of principal and interest payments</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={400}>
+                      <AreaChart
+                        data={schedule.map(p => ({
+                          month: `Month ${p.month}`,
+                          Principal: parseFloat(p.principal.toFixed(2)),
+                          Interest: parseFloat(p.interest.toFixed(2)),
+                        }))}
+                        margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                        <XAxis 
+                          dataKey="month" 
+                          className="text-xs"
+                          angle={-45}
+                          textAnchor="end"
+                          height={80}
+                        />
+                        <YAxis 
+                          className="text-xs"
+                          tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
+                        />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: 'hsl(var(--background))',
+                            border: '1px solid hsl(var(--border))',
+                            borderRadius: '6px',
+                          }}
+                          formatter={(value: number) => [
+                            `KES ${value.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+                            ''
+                          ]}
+                        />
+                        <Legend />
+                        <Area
+                          type="monotone"
+                          dataKey="Principal"
+                          stackId="1"
+                          stroke="hsl(var(--secondary))"
+                          fill="hsl(var(--secondary))"
+                          fillOpacity={0.6}
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="Interest"
+                          stackId="1"
+                          stroke="hsl(var(--primary))"
+                          fill="hsl(var(--primary))"
+                          fillOpacity={0.6}
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
 
                 <Card>
                   <CardHeader>
