@@ -47,6 +47,12 @@ export const Navigation = () => {
             Calculator
           </button>
           <button
+            onClick={() => navigate("/repayment")}
+            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Repayment Schedule
+          </button>
+          <button
             onClick={() => scrollToSection("apply")}
             className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
           >
