@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, PieChart, Pie, Cell } from "recharts";
 
 type PaymentDetail = {
   month: number;
@@ -157,11 +157,52 @@ export default function Repayment() {
                   </Card>
                 </div>
 
-                <Card className="mb-8">
-                  <CardHeader>
-                    <CardTitle>Payment Breakdown Over Time</CardTitle>
-                    <CardDescription>Visual representation of principal and interest payments</CardDescription>
-                  </CardHeader>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Total Payment Composition</CardTitle>
+                      <CardDescription>Proportion of principal vs interest</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <ResponsiveContainer width="100%" height={300}>
+                        <PieChart>
+                          <Pie
+                            data={[
+                              { name: 'Principal', value: totalPrincipal },
+                              { name: 'Interest', value: totalInterest },
+                            ]}
+                            cx="50%"
+                            cy="50%"
+                            labelLine={false}
+                            label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
+                            outerRadius={100}
+                            fill="#8884d8"
+                            dataKey="value"
+                          >
+                            <Cell fill="hsl(var(--secondary))" />
+                            <Cell fill="hsl(var(--primary))" />
+                          </Pie>
+                          <Tooltip
+                            contentStyle={{
+                              backgroundColor: 'hsl(var(--background))',
+                              border: '1px solid hsl(var(--border))',
+                              borderRadius: '6px',
+                            }}
+                            formatter={(value: number) => [
+                              `KES ${value.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+                              ''
+                            ]}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Payment Breakdown Over Time</CardTitle>
+                      <CardDescription>Visual representation of principal and interest payments</CardDescription>
+                    </CardHeader>
                   <CardContent>
                     <ResponsiveContainer width="100%" height={400}>
                       <AreaChart
@@ -215,7 +256,8 @@ export default function Repayment() {
                       </AreaChart>
                     </ResponsiveContainer>
                   </CardContent>
-                </Card>
+                  </Card>
+                </div>
 
                 <Card>
                   <CardHeader>
