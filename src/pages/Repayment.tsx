@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, PieChart, Pie, Cell, BarChart, Bar, LineChart, Line } from "recharts";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LoanComparison } from "@/components/LoanComparison";
+import { EarlyPaymentCalculator } from "@/components/EarlyPaymentCalculator";
 
 type PaymentDetail = {
   month: number;
@@ -409,6 +410,10 @@ export default function Repayment() {
                 </Card>
               </>
             )}
+
+            <div className="mt-12">
+              <EarlyPaymentCalculator />
+            </div>
 
             <div className="mt-12">
               <LoanComparison />
