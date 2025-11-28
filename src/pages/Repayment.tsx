@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, PieChart, Pie, Cell } from "recharts";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, PieChart, Pie, Cell, BarChart, Bar, LineChart, Line } from "recharts";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type PaymentDetail = {
   month: number;
@@ -22,6 +23,7 @@ export default function Repayment() {
   const [interestRate, setInterestRate] = useState<string>("10");
   const [loanTerm, setLoanTerm] = useState<string>("12");
   const [schedule, setSchedule] = useState<PaymentDetail[]>([]);
+  const [chartType, setChartType] = useState<"area" | "bar" | "line">("area");
 
   const calculateSchedule = () => {
     const principal = parseFloat(loanAmount);
@@ -200,60 +202,163 @@ export default function Repayment() {
 
                   <Card>
                     <CardHeader>
-                      <CardTitle>Payment Breakdown Over Time</CardTitle>
-                      <CardDescription>Visual representation of principal and interest payments</CardDescription>
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <CardTitle>Payment Breakdown Over Time</CardTitle>
+                          <CardDescription>Visual representation of principal and interest payments</CardDescription>
+                        </div>
+                        <Tabs value={chartType} onValueChange={(value) => setChartType(value as "area" | "bar" | "line")}>
+                          <TabsList>
+                            <TabsTrigger value="area">Area</TabsTrigger>
+                            <TabsTrigger value="bar">Bar</TabsTrigger>
+                            <TabsTrigger value="line">Line</TabsTrigger>
+                          </TabsList>
+                        </Tabs>
+                      </div>
                     </CardHeader>
                   <CardContent>
                     <ResponsiveContainer width="100%" height={400}>
-                      <AreaChart
-                        data={schedule.map(p => ({
-                          month: `Month ${p.month}`,
-                          Principal: parseFloat(p.principal.toFixed(2)),
-                          Interest: parseFloat(p.interest.toFixed(2)),
-                        }))}
-                        margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-                      >
-                        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                        <XAxis 
-                          dataKey="month" 
-                          className="text-xs"
-                          angle={-45}
-                          textAnchor="end"
-                          height={80}
-                        />
-                        <YAxis 
-                          className="text-xs"
-                          tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
-                        />
-                        <Tooltip
-                          contentStyle={{
-                            backgroundColor: 'hsl(var(--background))',
-                            border: '1px solid hsl(var(--border))',
-                            borderRadius: '6px',
-                          }}
-                          formatter={(value: number) => [
-                            `KES ${value.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-                            ''
-                          ]}
-                        />
-                        <Legend />
-                        <Area
-                          type="monotone"
-                          dataKey="Principal"
-                          stackId="1"
-                          stroke="hsl(var(--secondary))"
-                          fill="hsl(var(--secondary))"
-                          fillOpacity={0.6}
-                        />
-                        <Area
-                          type="monotone"
-                          dataKey="Interest"
-                          stackId="1"
-                          stroke="hsl(var(--primary))"
-                          fill="hsl(var(--primary))"
-                          fillOpacity={0.6}
-                        />
-                      </AreaChart>
+                      {chartType === "area" ? (
+                        <AreaChart
+                          data={schedule.map(p => ({
+                            month: `Month ${p.month}`,
+                            Principal: parseFloat(p.principal.toFixed(2)),
+                            Interest: parseFloat(p.interest.toFixed(2)),
+                          }))}
+                          margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                          <XAxis 
+                            dataKey="month" 
+                            className="text-xs"
+                            angle={-45}
+                            textAnchor="end"
+                            height={80}
+                          />
+                          <YAxis 
+                            className="text-xs"
+                            tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
+                          />
+                          <Tooltip
+                            contentStyle={{
+                              backgroundColor: 'hsl(var(--background))',
+                              border: '1px solid hsl(var(--border))',
+                              borderRadius: '6px',
+                            }}
+                            formatter={(value: number) => [
+                              `KES ${value.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+                              ''
+                            ]}
+                          />
+                          <Legend />
+                          <Area
+                            type="monotone"
+                            dataKey="Principal"
+                            stackId="1"
+                            stroke="hsl(var(--secondary))"
+                            fill="hsl(var(--secondary))"
+                            fillOpacity={0.6}
+                          />
+                          <Area
+                            type="monotone"
+                            dataKey="Interest"
+                            stackId="1"
+                            stroke="hsl(var(--primary))"
+                            fill="hsl(var(--primary))"
+                            fillOpacity={0.6}
+                          />
+                        </AreaChart>
+                      ) : chartType === "bar" ? (
+                        <BarChart
+                          data={schedule.map(p => ({
+                            month: `Month ${p.month}`,
+                            Principal: parseFloat(p.principal.toFixed(2)),
+                            Interest: parseFloat(p.interest.toFixed(2)),
+                          }))}
+                          margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                          <XAxis 
+                            dataKey="month" 
+                            className="text-xs"
+                            angle={-45}
+                            textAnchor="end"
+                            height={80}
+                          />
+                          <YAxis 
+                            className="text-xs"
+                            tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
+                          />
+                          <Tooltip
+                            contentStyle={{
+                              backgroundColor: 'hsl(var(--background))',
+                              border: '1px solid hsl(var(--border))',
+                              borderRadius: '6px',
+                            }}
+                            formatter={(value: number) => [
+                              `KES ${value.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+                              ''
+                            ]}
+                          />
+                          <Legend />
+                          <Bar
+                            dataKey="Principal"
+                            stackId="1"
+                            fill="hsl(var(--secondary))"
+                          />
+                          <Bar
+                            dataKey="Interest"
+                            stackId="1"
+                            fill="hsl(var(--primary))"
+                          />
+                        </BarChart>
+                      ) : (
+                        <LineChart
+                          data={schedule.map(p => ({
+                            month: `Month ${p.month}`,
+                            Principal: parseFloat(p.principal.toFixed(2)),
+                            Interest: parseFloat(p.interest.toFixed(2)),
+                          }))}
+                          margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                          <XAxis 
+                            dataKey="month" 
+                            className="text-xs"
+                            angle={-45}
+                            textAnchor="end"
+                            height={80}
+                          />
+                          <YAxis 
+                            className="text-xs"
+                            tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
+                          />
+                          <Tooltip
+                            contentStyle={{
+                              backgroundColor: 'hsl(var(--background))',
+                              border: '1px solid hsl(var(--border))',
+                              borderRadius: '6px',
+                            }}
+                            formatter={(value: number) => [
+                              `KES ${value.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+                              ''
+                            ]}
+                          />
+                          <Legend />
+                          <Line
+                            type="monotone"
+                            dataKey="Principal"
+                            stroke="hsl(var(--secondary))"
+                            strokeWidth={2}
+                          />
+                          <Line
+                            type="monotone"
+                            dataKey="Interest"
+                            stroke="hsl(var(--primary))"
+                            strokeWidth={2}
+                          />
+                        </LineChart>
+                      )}
                     </ResponsiveContainer>
                   </CardContent>
                   </Card>
