@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, PieChart, Pie, Cell, BarChart, Bar, LineChart, Line } from "recharts";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LoanComparison } from "@/components/LoanComparison";
 
 type PaymentDetail = {
   month: number;
@@ -408,6 +409,10 @@ export default function Repayment() {
                 </Card>
               </>
             )}
+
+            <div className="mt-12">
+              <LoanComparison />
+            </div>
           </div>
         </section>
       </main>
