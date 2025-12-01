@@ -79,6 +79,135 @@ export type Database = {
           },
         ]
       }
+      payment_history: {
+        Row: {
+          amount_paid: number
+          created_at: string
+          id: string
+          interest_paid: number
+          notes: string | null
+          payment_date: string
+          payment_method: string | null
+          payment_schedule_id: string
+          principal_paid: number
+          transaction_reference: string | null
+          user_id: string
+        }
+        Insert: {
+          amount_paid: number
+          created_at?: string
+          id?: string
+          interest_paid: number
+          notes?: string | null
+          payment_date: string
+          payment_method?: string | null
+          payment_schedule_id: string
+          principal_paid: number
+          transaction_reference?: string | null
+          user_id: string
+        }
+        Update: {
+          amount_paid?: number
+          created_at?: string
+          id?: string
+          interest_paid?: number
+          notes?: string | null
+          payment_date?: string
+          payment_method?: string | null
+          payment_schedule_id?: string
+          principal_paid?: number
+          transaction_reference?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_history_payment_schedule_id_fkey"
+            columns: ["payment_schedule_id"]
+            isOneToOne: false
+            referencedRelation: "payment_schedules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_history_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_schedules: {
+        Row: {
+          created_at: string
+          id: string
+          interest_rate: number
+          loan_amount: number
+          loan_application_id: string | null
+          loan_term: number
+          monthly_payment: number
+          next_payment_date: string
+          remaining_balance: number
+          reminder_days_before: number | null
+          reminder_enabled: boolean | null
+          start_date: string
+          status: string | null
+          total_paid: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          interest_rate: number
+          loan_amount: number
+          loan_application_id?: string | null
+          loan_term: number
+          monthly_payment: number
+          next_payment_date: string
+          remaining_balance: number
+          reminder_days_before?: number | null
+          reminder_enabled?: boolean | null
+          start_date: string
+          status?: string | null
+          total_paid?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          interest_rate?: number
+          loan_amount?: number
+          loan_application_id?: string | null
+          loan_term?: number
+          monthly_payment?: number
+          next_payment_date?: string
+          remaining_balance?: number
+          reminder_days_before?: number | null
+          reminder_enabled?: boolean | null
+          start_date?: string
+          status?: string | null
+          total_paid?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_schedules_loan_application_id_fkey"
+            columns: ["loan_application_id"]
+            isOneToOne: false
+            referencedRelation: "loan_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_schedules_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
