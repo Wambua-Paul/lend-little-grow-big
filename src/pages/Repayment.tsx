@@ -11,6 +11,7 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LoanComparison } from "@/components/LoanComparison";
 import { EarlyPaymentCalculator } from "@/components/EarlyPaymentCalculator";
+import { RefinancingCalculator } from "@/components/RefinancingCalculator";
 
 type PaymentDetail = {
   month: number;
@@ -413,6 +414,10 @@ export default function Repayment() {
 
             <div className="mt-12">
               <EarlyPaymentCalculator />
+            </div>
+
+            <div className="mt-12">
+              <RefinancingCalculator />
             </div>
 
             <div className="mt-12">
