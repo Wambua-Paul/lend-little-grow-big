@@ -52,6 +52,14 @@ export const Navigation = () => {
           >
             Repayment Schedule
           </button>
+          {user && (
+            <button
+              onClick={() => navigate("/payments")}
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Payments
+            </button>
+          )}
           <button
             onClick={() => scrollToSection("apply")}
             className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
