@@ -5,6 +5,7 @@ import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { PaymentScheduleManager } from "@/components/PaymentScheduleManager";
 import { PaymentHistoryTracker } from "@/components/PaymentHistoryTracker";
+import { PaymentAnalytics } from "@/components/PaymentAnalytics";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2 } from "lucide-react";
 
@@ -55,11 +56,15 @@ export default function Payments() {
               </p>
             </div>
 
-            <Tabs defaultValue="schedules" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto mb-8">
-                <TabsTrigger value="schedules">Payment Schedules</TabsTrigger>
-                <TabsTrigger value="history">Payment History</TabsTrigger>
+            <Tabs defaultValue="analytics" className="w-full">
+              <TabsList className="grid w-full grid-cols-3 max-w-lg mx-auto mb-8">
+                <TabsTrigger value="analytics">Analytics</TabsTrigger>
+                <TabsTrigger value="schedules">Schedules</TabsTrigger>
+                <TabsTrigger value="history">History</TabsTrigger>
               </TabsList>
+              <TabsContent value="analytics">
+                <PaymentAnalytics />
+              </TabsContent>
               <TabsContent value="schedules">
                 <PaymentScheduleManager />
               </TabsContent>
